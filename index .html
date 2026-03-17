@@ -1,0 +1,257 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ambo U Project | Secure Portal</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+    <style>
+        :root {
+            --bg-color: #0d0d0d; 
+            --card-bg: #1a1a1a;
+            --accent-color: #00ffc8; 
+            --primary-color: #00bfff; 
+            --text-light: #e0e0e0;
+            --shadow-dark: 0 0 15px rgba(0, 255, 200, 0.4); 
+            --transition-speed: 0.6s;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            margin: 0; padding: 0;
+            background-color: var(--bg-color);
+            color: var(--text-light);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+        }
+        
+        #message-box {
+            position: fixed;
+            top: -100px;
+            width: 100%;
+            padding: 15px;
+            text-align: center;
+            font-weight: bold;
+            z-index: 2000;
+            transition: top 0.4s ease;
+        }
+
+        /* --- AUTH WRAPPER --- */
+        .wrapper {
+            position: relative;
+            width: 750px;
+            height: 450px;
+            background: var(--card-bg);
+            border-radius: 15px;
+            box-shadow: var(--shadow-dark);
+            border: 1px solid rgba(0, 255, 200, 0.2);
+            display: flex;
+            overflow: hidden;
+        }
+
+        .form-container {
+            width: 45%; 
+            padding: 30px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            transition: all var(--transition-speed) ease;
+            position: absolute; 
+            top: 0; height: 100%;
+            box-sizing: border-box;
+            z-index: 1;
+        }
+
+        .login-form-container { left: 0; opacity: 1; }
+        .register-form-container { left: 0; opacity: 0; pointer-events: none; }
+
+        /* --- SLIDING PANEL --- */
+        .panel {
+            position: absolute;
+            top: 0; 
+            left: 45%; 
+            width: 55%; 
+            height: 100%;
+            background: #000; 
+            color: white;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            padding: 30px;
+            text-align: center;
+            transition: all var(--transition-speed) ease;
+            z-index: 5;
+            box-sizing: border-box;
+        }
+
+        .wrapper.active .login-form-container { opacity: 0; pointer-events: none; }
+        .wrapper.active .register-form-container { opacity: 1; pointer-events: auto; left: 55%; }
+        .wrapper.active .panel { left: 0; width: 55%; }
+
+        /* --- FORM ELEMENTS --- */
+        form { width: 100%; }
+        h2 { color: var(--accent-color); font-size: 1.5rem; margin-bottom: 20px; text-align: center; }
+        
+        .input-group { margin-bottom: 15px; position: relative; width: 100%; }
+        .input-group input { 
+            width: 100%; padding: 10px 10px 10px 35px; 
+            background: #252525; color: #fff; border: 1px solid #333; border-radius: 8px; 
+            box-sizing: border-box;
+        }
+        .input-group i { position: absolute; top: 50%; left: 12px; transform: translateY(-50%); color: var(--accent-color); }
+        
+        .btn-submit { 
+            width: 100%; padding: 12px; 
+            background: var(--accent-color); color: #000; 
+            border: none; border-radius: 8px; cursor: pointer; font-weight: 800; 
+            box-shadow: 0 4px 10px rgba(0, 255, 200, 0.3);
+            transition: 0.3s;
+        }
+        .btn-submit:hover { opacity: 0.8; transform: scale(1.02); }
+
+        .panel button {
+            background: transparent; border: 2px solid var(--accent-color); 
+            color: var(--accent-color); padding: 8px 25px; border-radius: 50px; 
+            cursor: pointer; margin-top: 15px; font-weight: 600;
+        }
+
+        /* Forgot Password View */
+        .forgot-form-container { 
+            width: 100%; left: 0; opacity: 0; z-index: -1;
+            transform: translateY(-100%); transition: 0.5s;
+            background: var(--card-bg);
+        }
+        .wrapper.forgot-active .forgot-form-container { opacity: 1; z-index: 10; transform: translateY(0); }
+
+        @media (max-width: 768px) {
+            .wrapper { width: 95%; height: auto; flex-direction: column; }
+            .form-container, .panel { width: 100%; position: relative; left: 0 !important; }
+            .panel { height: 180px; order: -1; }
+        }
+    </style>
+</head>
+<body>
+
+    <div id="message-box"></div>
+
+    <div class="wrapper" id="auth-wrapper">
+        <div class="form-container login-form-container">
+            <form id="loginForm">
+                <h2>LOGIN</h2>
+                <div class="input-group">
+                    <i class="fa-solid fa-envelope"></i>
+                    <input type="email" id="loginEmail" placeholder="Email" required>
+                </div>
+                <div class="input-group">
+                    <i class="fa-solid fa-key"></i>
+                    <input type="password" placeholder="Password" required>
+                </div>
+                <button type="submit" class="btn-submit">ACCESS PORTAL</button>
+                <p style="text-align:center">
+                    <span onclick="toggleForgot(true)" style="cursor:pointer; font-size: 0.8rem; color: var(--primary-color)">Forgot Password?</span>
+                </p>
+            </form>
+        </div>
+
+        <div class="form-container register-form-container">
+            <form id="registerForm">
+                <h2>REGISTER</h2>
+                <div class="input-group">
+                    <i class="fa-solid fa-user"></i>
+                    <input type="text" placeholder="Username" required>
+                </div>
+                <div class="input-group">
+                    <i class="fa-solid fa-envelope"></i>
+                    <input type="email" placeholder="Email" required>
+                </div>
+                <div class="input-group">
+                    <i class="fa-solid fa-lock"></i>
+                    <input type="password" placeholder="Password" required>
+                </div>
+                <button type="submit" class="btn-submit">CREATE ACCOUNT</button>
+            </form>
+        </div>
+
+        <div class="form-container forgot-form-container">
+            <form id="forgotForm">
+                <h2>RESET ACCESS</h2>
+                <div class="input-group">
+                    <i class="fa-solid fa-envelope"></i>
+                    <input type="email" placeholder="Verified Email" required>
+                </div>
+                <button type="submit" class="btn-submit">SEND LINK</button>
+                <p style="text-align:center">
+                    <span onclick="toggleForgot(false)" style="cursor:pointer; color: var(--primary-color)">Back to Login</span>
+                </p>
+            </form>
+        </div>
+
+        <div class="panel" id="side-panel">
+            <h3 id="panel-h">NEW HERE?</h3>
+            <p id="panel-p" style="font-size: 0.9rem;">Join the ours website today.</p>
+            <button onclick="toggleAuth()" id="panel-btn">Sign Up</button>
+        </div>
+    </div>
+
+    <script>
+        const wrapper = document.getElementById('auth-wrapper');
+        const msgBox = document.getElementById('message-box');
+
+        // Toggle UI between Login and Register
+        function toggleAuth() {
+            wrapper.classList.toggle('active');
+            const isReg = wrapper.classList.contains('active');
+            document.getElementById('panel-h').innerText = isReg ? "ALREADY MEMBER?" : "NEW HERE?";
+            document.getElementById('panel-btn').innerText = isReg ? "Log In" : "Sign Up";
+        }
+
+        // Toggle Forgot Password overlay
+        function toggleForgot(show) {
+            if (show) wrapper.classList.add('forgot-active');
+            else wrapper.classList.remove('forgot-active');
+        }
+
+        // UI Notification System
+        function notify(text, type) {
+            msgBox.innerText = text;
+            msgBox.style.top = "0";
+            msgBox.style.backgroundColor = type === 'success' ? "#00ffc8" : "#ff4444";
+            msgBox.style.color = "#000";
+            setTimeout(() => { msgBox.style.top = "-100px"; }, 3000);
+        }
+
+        // --- NETWORK & DATABASE LOGIC SIMULATION ---
+        document.getElementById('loginForm').onsubmit = (e) => {
+            e.preventDefault();
+            
+            // Simulation of Database Verification
+            notify("Verifying Credentials...", "success");
+
+            setTimeout(() => {
+                notify("Access Granted! Redirecting...", "success");
+                
+                // THE LINK: This sends the user to the home page after DB verification
+                setTimeout(() => {
+                    window.location.href = "home.html"; // Ensure you have a home.html file!
+                }, 1000);
+            }, 1500);
+        };
+
+        document.getElementById('registerForm').onsubmit = (e) => {
+            e.preventDefault();
+            notify("Data Saved to Database!", "success");
+            setTimeout(toggleAuth, 1000);
+        };
+
+        document.getElementById('forgotForm').onsubmit = (e) => {
+            e.preventDefault();
+            notify("Recovery Packet Sent!", "success");
+            setTimeout(() => toggleForgot(false), 1500);
+        };
+    </script>
+</body>
+</html>
